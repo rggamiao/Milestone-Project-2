@@ -1,9 +1,20 @@
+
 import Chart from "chart.js/auto"
 import { CategoryScale } from "chart.js";
 import { useState } from "react";
 import PieChart from "./compnents/PieChart";
 import { Data } from "./utils/Data"
 import './App.css';
+
+
+const states = [
+  "Alabama", "Alaska", "Arizona", "Arkansas", "California", "Colorado", "Connecticut", "Delaware", "Florida", "Georgia", 
+  "Hawaii", "Idaho", "Illinois", "Indiana", "Iowa", "Kansas", "Kentucky", "Louisiana", "Maine", "Maryland", "Massachusetts", 
+  "Michigan", "Minnesota", "Mississippi", "Missouri", "Montana", "Nebraska", "Nevada", "New Hampshire", "New Jersey", 
+  "New Mexico", "New York", "North Carolina", "North Dakota", "Ohio", "Oklahoma", "Oregon", "Pennsylvania", "Rhode Island", 
+  "South Carolina", "South Dakota", "Tennessee", "Texas", "Utah", "Vermont", "Virginia", "Washington", "West Virginia", 
+  "Wisconsin", "Wyoming"
+];
 
 Chart.register(CategoryScale);
 
@@ -35,7 +46,14 @@ function App() {
         <button>Right</button>
       </div>
       <div>
-        <p>Fun facts</p>
+        <select>
+        {states.map(state => (
+            <option key={state} value={state}>{state}</option>
+          ))}
+        </select>
+      </div>
+      <div>
+        <p>Map section</p>
       </div>
     </div>
   );
