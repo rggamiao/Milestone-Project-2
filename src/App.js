@@ -2,8 +2,11 @@ import React, { useState } from 'react';
 import Chart from "chart.js/auto"
 import { CategoryScale } from "chart.js";
 import PieChart from "./compnents/PieChart";
+import Map from './components/Map'; // Import the Map
 import { Data } from "./utils/Data"
 import './App.css';
+import 'leaflet/dist/leaflet.css';
+
 
 
 const states = [
