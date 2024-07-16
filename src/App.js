@@ -1,9 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Chart from "chart.js/auto"
 import { CategoryScale } from "chart.js";
-import PieChart from "./compnents/PieChart";
+import PieChart from "./components/PieChart.js";
 import Map from './Map.js'; // Import the Map
-import { Data } from "./utils/Data"
 import './App.css';
 import 'leaflet/dist/leaflet.css';
 
@@ -21,12 +20,13 @@ const states = [
 Chart.register(CategoryScale);
 
 function App() {
+ // Initializes the charts default state 
   const [chartData, setChartData] = useState({
     labels: ['Right-handed', 'Left-handed'],
     datasets: [
       {
         label: "Handedness Distribution",
-        data: [Data.rightHanded, Data.leftHanded],
+        data: [0, 0],
         backgroundColor: [
           "rgba(75,192,192,1)",
           "#ecf0f1"
@@ -36,6 +36,39 @@ function App() {
       }
     ]
   });
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await fetch('https://mp2-backend-production.up.railway.app/api/hand-dominance');
+        const data = await response.json();
+        console.log(data)
+        const rightHanded = data.filter(item => item.choice === 'right').length;
+        const leftHanded = data.filter(item => item.choice === 'left').length;
+
+        setChartData({
+          labels: ['Right-handed', 'Left-handed'],
+          datasets: [
+            {
+              label: "Handedness Distribution",
+              data: [rightHanded, leftHanded],
+              backgroundColor: [
+                "rgba(75,192,192,1)",
+                "#ecf0f1"
+              ],
+              borderColor: "black",
+              borderWidth: 2
+            }
+          ]
+        });
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
+    };
+
+    fetchData();
+  }, []);
+
   const [state, setState] = useState('');
   const handleVote = async (choice) => {
     try {
