@@ -5,6 +5,9 @@ import PieChart from "./components/PieChart.js";
 import Map from './Map.js'; // Import the Map
 import './App.css';
 import 'leaflet/dist/leaflet.css';
+import Button from 'react-bootstrap/Button';
+import Form from 'react-bootstrap/Form';
+import Accordion from 'react-bootstrap/Accordion';
 
 
 
@@ -93,11 +96,27 @@ function App() {
   return (
     <div className="App">
       <h1>Are you a lefty or a righty ?</h1>
-      <div>
+      <Accordion>
+      <Accordion.Item eventKey="0">
+        <Accordion.Header>Pie Chart</Accordion.Header>
+        <Accordion.Body>
+      
         <PieChart chartData={chartData} />
-      </div>
+      
+      </Accordion.Body>
+      </Accordion.Item>
+      <Accordion.Item eventKey="1">
+        <Accordion.Header>Map</Accordion.Header>
+        <Accordion.Body>
+
+        <Map />
+
+        </Accordion.Body>
+      </Accordion.Item>
+      </Accordion>
+      <div class="selectorArea">
       <div>
-        <select value={state} onChange={(e) => setState(e.target.value)}>
+        <Form.Select size="lg" aria-label="Default select example" value={state} onChange={(e) => setState(e.target.value)}>
           <option value="">Select your state</option>
           <option value="AL">Alabama</option> 
           <option value="AK">Alaska</option> 
@@ -150,15 +169,12 @@ function App() {
           <option value="WI">Wisconsin</option>
           <option value="WY">Wyoming</option>
       
-        </select>
+        </Form.Select>
       </div>
       <div>
-        <button onClick={() => handleVote('left')}>Left</button>
-        <button onClick={() => handleVote('right')}>Right</button>
+        <Button onClick={() => handleVote('left')} variant="outline-primary" size="lg">Left</Button>
+        <Button onClick={() => handleVote('right')} variant="outline-success" size="lg">Right</Button>
       </div>
-      <div>
-        <p>Map section</p>
-        <Map />
       </div>
     </div>
   );
