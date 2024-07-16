@@ -40,16 +40,18 @@ function App() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch('http://localhost:5000/api/hand-dominance');
+        const response = await fetch('https://mp2-backend-production.up.railway.app/api/hand-dominance');
         const data = await response.json();
-        const { right_hand, left_hand } = data[0];
+        console.log(data)
+        const rightHanded = data.filter(item => item.choice === 'right').length;
+        const leftHanded = data.filter(item => item.choice === 'left').length;
 
         setChartData({
           labels: ['Right-handed', 'Left-handed'],
           datasets: [
             {
               label: "Handedness Distribution",
-              data: [right_hand, left_hand],
+              data: [rightHanded, leftHanded],
               backgroundColor: [
                 "rgba(75,192,192,1)",
                 "#ecf0f1"
