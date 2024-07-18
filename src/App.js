@@ -2,29 +2,27 @@ import React, { useState, useEffect } from 'react';
 import Chart from "chart.js/auto";
 import { CategoryScale } from "chart.js";
 import PieChart from "./components/PieChart.js";
-import HandednessMap from "./components/HandednessMap";
+import Map from './Map.js'; // Import the Map
 import './App.css';
+import 'leaflet/dist/leaflet.css';
 import 'bootstrap/dist/css/bootstrap.min.css'; // Import Bootstrap CSS
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
 import Accordion from 'react-bootstrap/Accordion';
 
 const states = [
-  { code: "AL", name: "Alabama" }, { code: "AK", name: "Alaska" }, { code: "AZ", name: "Arizona" }, { code: "AR", name: "Arkansas" }, { code: "CA", name: "California" }, 
-  { code: "CO", name: "Colorado" }, { code: "CT", name: "Connecticut" }, { code: "DE", name: "Delaware" }, { code: "FL", name: "Florida" }, { code: "GA", name: "Georgia" }, 
-  { code: "HI", name: "Hawaii" }, { code: "ID", name: "Idaho" }, { code: "IL", name: "Illinois" }, { code: "IN", name: "Indiana" }, { code: "IA", name: "Iowa" }, 
-  { code: "KS", name: "Kansas" }, { code: "KY", name: "Kentucky" }, { code: "LA", name: "Louisiana" }, { code: "ME", name: "Maine" }, { code: "MD", name: "Maryland" }, 
-  { code: "MA", name: "Massachusetts" }, { code: "MI", name: "Michigan" }, { code: "MN", name: "Minnesota" }, { code: "MS", name: "Mississippi" }, { code: "MO", name: "Missouri" }, 
-  { code: "MT", name: "Montana" }, { code: "NE", name: "Nebraska" }, { code: "NV", name: "Nevada" }, { code: "NH", name: "New Hampshire" }, { code: "NJ", name: "New Jersey" }, 
-  { code: "NM", name: "New Mexico" }, { code: "NY", name: "New York" }, { code: "NC", name: "North Carolina" }, { code: "ND", name: "North Dakota" }, { code: "OH", name: "Ohio" }, 
-  { code: "OK", name: "Oklahoma" }, { code: "OR", name: "Oregon" }, { code: "PA", name: "Pennsylvania" }, { code: "RI", name: "Rhode Island" }, { code: "SC", name: "South Carolina" }, 
-  { code: "SD", name: "South Dakota" }, { code: "TN", name: "Tennessee" }, { code: "TX", name: "Texas" }, { code: "UT", name: "Utah" }, { code: "VT", name: "Vermont" }, 
-  { code: "VA", name: "Virginia" }, { code: "WA", name: "Washington" }, { code: "WV", name: "West Virginia" }, { code: "WI", name: "Wisconsin" }, { code: "WY", name: "Wyoming" }
+  "Alabama", "Alaska", "Arizona", "Arkansas", "California", "Colorado", "Connecticut", "Delaware", "Florida", "Georgia", 
+  "Hawaii", "Idaho", "Illinois", "Indiana", "Iowa", "Kansas", "Kentucky", "Louisiana", "Maine", "Maryland", "Massachusetts", 
+  "Michigan", "Minnesota", "Mississippi", "Missouri", "Montana", "Nebraska", "Nevada", "New Hampshire", "New Jersey", 
+  "New Mexico", "New York", "North Carolina", "North Dakota", "Ohio", "Oklahoma", "Oregon", "Pennsylvania", "Rhode Island", 
+  "South Carolina", "South Dakota", "Tennessee", "Texas", "Utah", "Vermont", "Virginia", "Washington", "West Virginia", 
+  "Wisconsin", "Wyoming"
 ];
 
 Chart.register(CategoryScale);
 
 function App() {
+  // Initializes the chart's default state 
   const [chartData, setChartData] = useState({
     labels: ['Right-handed', 'Left-handed'],
     datasets: [
@@ -41,10 +39,9 @@ function App() {
     ]
   });
 
-  const [stateCode, setStateCode] = useState(''); // Track selected state code
-
   const fetchData = async () => {
     try {
+      console.log('Fetching data...');
       const response = await fetch('https://mp2-backend-production.up.railway.app/api/hand-dominance');
       const data = await response.json();
       const rightHanded = data.filter(item => item.choice === 'right').length;
@@ -74,9 +71,10 @@ function App() {
     fetchData();
   }, []);
 
+  const [state, setState] = useState('');
   const handleVote = async (choice) => {
-    console.log('Vote button clicked:', choice, stateCode);
-    if (!stateCode) {
+    console.log('Vote button clicked:', choice, state);
+    if (!state) {
       console.error('No state selected');
       return;
     }
@@ -87,11 +85,12 @@ function App() {
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ choice, state: stateCode })
+        body: JSON.stringify({ choice, state })
       });
       if (response.ok) {
         console.log('Vote recorded');
-        fetchData(); // Fetch the updated data and update the chart and map
+        // Fetch the updated data and update the chart
+        fetchData();
       } else {
         console.error('Failed to record vote');
       }
@@ -113,16 +112,16 @@ function App() {
         <Accordion.Item eventKey="1">
           <Accordion.Header>Map</Accordion.Header>
           <Accordion.Body>
-            <HandednessMap data={chartData.datasets[0].data} stateCode={stateCode} />
+            <Map />
           </Accordion.Body>
         </Accordion.Item>
       </Accordion>
       <div className="selectorArea">
         <div>
-          <Form.Select size="lg" aria-label="Default select example" value={stateCode} onChange={(e) => setStateCode(e.target.value)}>
+          <Form.Select size="lg" aria-label="Default select example" value={state} onChange={(e) => setState(e.target.value)}>
             <option value="">Select your state</option>
-            {states.map((state, index) => (
-              <option key={index} value={state.code}>{state.name}</option>
+            {states.map((stateName, index) => (
+              <option key={index} value={stateName}>{stateName}</option>
             ))}
           </Form.Select>
         </div>
