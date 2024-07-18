@@ -57,7 +57,7 @@ const HandednessMap = ({ data, stateStatistics }) => {
                   onMouseLeave={handleMouseLeave}
                   style={{
                     hover: {
-                      fill: "#F53",
+                      fill: "rgba(75,192,192,1)",
                       outline: "none"
                     }
                   }}
