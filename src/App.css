@@ -1,5 +1,14 @@
 .App {
   text-align: center;
+  width : 50%;
+  margin : 0 auto;
+}
+
+.selectorArea {
+  margin: 50px auto;
+  border: 1px black solid;
+  padding: 10% 0;
+  Width: 50%;
 }
 
 .App-logo {
