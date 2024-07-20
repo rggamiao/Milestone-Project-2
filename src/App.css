@@ -1,47 +1,88 @@
 .App {
   text-align: center;
-  width : 50%;
-  margin : 0 auto;
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  margin: 0 auto;
+  background-color: var(--background-color);
+  transition: background-color 250ms ease-in-out;
+}
+
+.accordion-button:focus,
+.accordion-button:not(.collapsed) {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+.title {
+  color: var(--primary-text-color);
+  margin-bottom: 50px;
+  font-size: 3em;
+}
+
+.accordion {
+  width: 50%;
+  border-radius: 100px;
+  background-color: var(--foreground-color);
+  color: var(--secondary-text-color);
+}
+
+.accordion-button {
+  font-size: 1em;
+}
+
+.accordion-item {
+  background-color: var(--foreground-color);
+  color: var(--secondary-text-color);
 }
 
 .selectorArea {
   margin: 50px auto;
   border: 1px black solid;
-  padding: 10% 0;
-  Width: 50%;
-}
-
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
-}
-
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
+  border-radius: 10px;
+  padding: 20px;
+  width: 80%;
+  background-color: var(--foreground-color);
+  color: var(--secondary-text-color);
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
+  box-sizing: border-box;
 }
 
-.App-link {
-  color: #61dafb;
+.selectorArea .form-select {
+  width: 100%;
+  margin-bottom: 20px;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
+.buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+}
+
+/* Media Query for larger screens */
+@media (min-width: 768px) {
+  .selectorArea {
+    flex-direction: row;
+    justify-content: space-evenly;
+    width: 50%;
   }
-  to {
-    transform: rotate(360deg);
+
+  .selectorArea .form-select {
+    width: 100%;
+    margin-bottom: 0;
+    margin-left: 20px;
+    padding-left: 10px;
+  }
+
+  .buttons {
+    width: 60%;
+    flex-direction: row;
+    justify-content: space-evenly;
   }
 }

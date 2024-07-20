@@ -2,12 +2,19 @@ import React, { useState, useEffect } from 'react';
 import Chart from "chart.js/auto";
 import { CategoryScale } from "chart.js";
 import PieChart from "./components/PieChart.js";
+
+import Map from './Map.js'; // Import the Map
+import 'leaflet/dist/leaflet.css';
+
 import HandednessMap from "./components/HandednessMap";
-import './App.css';
+
 import 'bootstrap/dist/css/bootstrap.min.css'; // Import Bootstrap CSS
+
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
 import Accordion from 'react-bootstrap/Accordion';
+import './App.css';
+import { Toggle } from "./components/toggle.js";
 
 const states = [
   { code: "AL", name: "Alabama" }, { code: "AK", name: "Alaska" }, { code: "AZ", name: "Arizona" }, { code: "AR", name: "Arkansas" }, { code: "CA", name: "California" }, 
@@ -100,22 +107,34 @@ function App() {
     }
   };
 
+  const [isDark, setIsDark] = useState(false);
+
   return (
-    <div className="App">
-      <h1>Are you a lefty or a righty?</h1>
-      <Accordion>
-        <Accordion.Item eventKey="0">
-          <Accordion.Header>Pie Chart</Accordion.Header>
-          <Accordion.Body>
-            <PieChart chartData={chartData} />
-          </Accordion.Body>
-        </Accordion.Item>
-        <Accordion.Item eventKey="1">
-          <Accordion.Header>Map</Accordion.Header>
-          <Accordion.Body>
-            <HandednessMap data={chartData.datasets[0].data} stateCode={stateCode} />
-          </Accordion.Body>
-        </Accordion.Item>
+
+    <div className="App" data-theme={isDark ? "dark" : "light"}>
+      <Toggle 
+        isChecked={isDark}
+        handleChange={() => setIsDark(!isDark)}
+        label={isDark ? "Light Mode" : "Dark Mode"}
+      />
+      <h1 className="title">Are you a lefty or a righty ?</h1>
+      <Accordion className="accordion">
+      <Accordion.Item className="accordion-item" eventKey="0">
+      <Accordion.Header>Dominant Hand Chart</Accordion.Header>
+        <Accordion.Body>
+      
+        <PieChart />
+      
+      </Accordion.Body>
+      </Accordion.Item>
+      <Accordion.Item className="accordion-items" eventKey="1">
+        <Accordion.Header className='accordion-title'>Map</Accordion.Header>
+        <Accordion.Body>
+
+        <Map />
+
+        </Accordion.Body>
+      </Accordion.Item>
       </Accordion>
       <div className="selectorArea">
         <div>
@@ -126,10 +145,11 @@ function App() {
             ))}
           </Form.Select>
         </div>
-        <div>
-          <Button onClick={() => handleVote('left')} variant="outline-primary" size="lg">Left</Button>
-          <Button onClick={() => handleVote('right')} variant="outline-success" size="lg">Right</Button>
-        </div>
+      <div className="buttons">
+        <Button onClick={() => handleVote('left')} size="lg">Left Handed?</Button>
+        <Button onClick={() => handleVote('right')} size="lg">Right Handed?</Button>
+      </div>
+ 
       </div>
     </div>
   );
