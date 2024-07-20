@@ -2,12 +2,17 @@ import React, { useState, useEffect } from 'react';
 import Chart from "chart.js/auto";
 import { CategoryScale } from "chart.js";
 import PieChart from "./components/PieChart.js";
+import Map from './Map.js'; // Import the Map
+import 'leaflet/dist/leaflet.css';
 import HandednessMap from "./components/HandednessMap";
-import './App.css';
 import 'bootstrap/dist/css/bootstrap.min.css'; // Import Bootstrap CSS
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
 import Accordion from 'react-bootstrap/Accordion';
+import './App.css';
+import { Toggle } from "./components/toggle.js";
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const states = [
   { code: "AL", name: "Alabama" }, { code: "AK", name: "Alaska" }, { code: "AZ", name: "Arizona" }, { code: "AR", name: "Arkansas" }, { code: "CA", name: "California" },
@@ -42,6 +47,7 @@ function App() {
   });
 
   const [stateCode, setStateCode] = useState(''); // Track selected state code
+  const [email, setEmail] = useState(''); // Track email input
 
   const fetchData = async () => {
     try {
@@ -78,6 +84,12 @@ function App() {
     console.log('Vote button clicked:', choice, stateCode);
     if (!stateCode) {
       console.error('No state selected');
+      toast.error('Please select a state.');
+      return;
+    }
+    if (!email) {
+      console.error('Email is required');
+      toast.error('Email is required.');
       return;
     }
 
@@ -87,33 +99,46 @@ function App() {
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ choice, state: stateCode })
+        body: JSON.stringify({ choice, state: stateCode, email })
       });
       if (response.ok) {
         console.log('Vote recorded');
         fetchData(); // Fetch the updated data and update the chart and map
+        toast.success('Vote recorded successfully!');
+      } else if (response.status === 409) {
+        console.error('Email already exists');
+        toast.error('This email has already voted.');
       } else {
         console.error('Failed to record vote');
+        toast.error('Failed to record vote.');
       }
     } catch (error) {
       console.error('Error:', error);
+      toast.error('An error occurred. Please try again.');
     }
   };
 
+  const [isDark, setIsDark] = useState(false);
+
   return (
-    <div className="App">
-      <h1>Are you a lefty or a righty?</h1>
-      <Accordion>
-        <Accordion.Item eventKey="0">
-          <Accordion.Header>Pie Chart</Accordion.Header>
+    <div className="App" data-theme={isDark ? "dark" : "light"}>
+      <Toggle 
+        isChecked={isDark}
+        handleChange={() => setIsDark(!isDark)}
+        label={isDark ? "Light Mode" : "Dark Mode"}
+      />
+      <h1 className="title">Are you a lefty or a righty ?</h1>
+      <Accordion className="accordion">
+        <Accordion.Item className="accordion-item" eventKey="0">
+          <Accordion.Header>Dominant Hand Chart</Accordion.Header>
           <Accordion.Body>
-            <PieChart chartData={chartData} />
+            <PieChart />
           </Accordion.Body>
         </Accordion.Item>
-        <Accordion.Item eventKey="1">
-          <Accordion.Header>Map</Accordion.Header>
+        <Accordion.Item className="accordion-items" eventKey="1">
+          <Accordion.Header className='accordion-title'>Map</Accordion.Header>
           <Accordion.Body>
-            <HandednessMap data={chartData.datasets[0].data} stateCode={stateCode} />
+            <Map />
           </Accordion.Body>
         </Accordion.Item>
       </Accordion>
@@ -127,10 +152,19 @@ function App() {
           </Form.Select>
         </div>
         <div>
-          <Button onClick={() => handleVote('left')} variant="outline-primary" size="lg">Left</Button>
-          <Button onClick={() => handleVote('right')} variant="outline-success" size="lg">Right</Button>
+          <Form.Control
+            type="email"
+            placeholder="Enter email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
+        </div>
+        <div className="buttons">
+          <Button onClick={() => handleVote('left')} size="lg">Left Handed?</Button>
+          <Button onClick={() => handleVote('right')} size="lg">Right Handed?</Button>
         </div>
       </div>
+      <ToastContainer />
     </div>
   );
 }
