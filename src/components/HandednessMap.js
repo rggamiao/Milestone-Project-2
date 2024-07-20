@@ -18,25 +18,46 @@ const colorScale = scaleQuantize()
     "#08306b"
   ]);
 
-const HandednessMap = ({ data, stateStatistics, onStateClick }) => {
+const HandednessMap = ({ onStateClick }) => {
   const [hoveredState, setHoveredState] = useState(null);
   const [selectedState, setSelectedState] = useState(null);
   const [mapStatus, setMapStatus] = useState('loading');
+  const [stateStatistics, setStateStatistics] = useState({});
+  const [data, setData] = useState({});
 
   useEffect(() => {
-    console.log("stateStatistics:", stateStatistics);
-    console.log("data:", data);
-    
-    if (stateStatistics === undefined && data === undefined) {
-      setMapStatus('noData');
-    } else if (stateStatistics === undefined) {
-      setMapStatus('noStatistics');
-    } else if (Object.keys(stateStatistics).length === 0) {
-      setMapStatus('emptyStatistics');
-    } else {
+    fetchData();
+  }, []);
+
+  const fetchData = async () => {
+    try {
+      const response = await fetch('https://mp2-backend-production.up.railway.app/api/hand-dominance');
+      const handData = await response.json();
+      
+      const stats = {};
+      handData.forEach(item => {
+        if (!stats[item.state]) {
+          stats[item.state] = { right: 0, left: 0 };
+        }
+        stats[item.state][item.choice]++;
+      });
+
+      setStateStatistics(stats);
+      
+      // Calculate percentages for coloring
+      const percentages = {};
+      Object.keys(stats).forEach(state => {
+        const total = stats[state].right + stats[state].left;
+        percentages[state] = (stats[state].right / total) * 100;
+      });
+      setData(percentages);
+
       setMapStatus('ready');
+    } catch (error) {
+      console.error('Error fetching data:', error);
+      setMapStatus('error');
     }
-  }, [stateStatistics, data]);
+  };
 
   const handleMouseEnter = (geo) => {
     const stateName = geo.properties.name;
@@ -60,17 +81,10 @@ const HandednessMap = ({ data, stateStatistics, onStateClick }) => {
 
     console.log("Clicked state:", stateName);
 
-    if (!stateStatistics) {
-      console.warn("stateStatistics is undefined");
-      return;
-    }
-
-    const stateStats = stateStatistics[stateName];
-
-    if (stateStats) {
+    if (stateStatistics && stateStatistics[stateName]) {
       setSelectedState({
         name: stateName,
-        statistics: stateStats,
+        statistics: stateStatistics[stateName],
         coordinates: [geo.properties.longitude, geo.properties.latitude]
       });
       onStateClick(stateCode);
@@ -87,7 +101,7 @@ const HandednessMap = ({ data, stateStatistics, onStateClick }) => {
           {({ geographies }) =>
             geographies.map(geo => {
               const stateName = geo.properties.name;
-              const value = data && data[stateName] ? data[stateName] : 0;
+              const value = data[stateName] || 0;
               return (
                 <Geography
                   key={geo.rsmKey}

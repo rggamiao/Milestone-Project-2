@@ -1,16 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import Chart from "chart.js/auto";
 import { CategoryScale } from "chart.js";
-import PieChart from "./components/PieChart.js";
-import Map from './Map.js'; // Import the Map
-import 'leaflet/dist/leaflet.css';
+import PieChart from "./components/PieChart";
 import HandednessMap from "./components/HandednessMap";
+import 'leaflet/dist/leaflet.css';
 import 'bootstrap/dist/css/bootstrap.min.css'; // Import Bootstrap CSS
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
 import Accordion from 'react-bootstrap/Accordion';
 import './App.css';
-import { Toggle } from "./components/toggle.js";
+import { Toggle } from "./components/toggle";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -132,13 +131,13 @@ function App() {
         <Accordion.Item className="accordion-item" eventKey="0">
           <Accordion.Header>Dominant Hand Chart</Accordion.Header>
           <Accordion.Body>
-            <PieChart />
+            <PieChart chartData={chartData} />
           </Accordion.Body>
         </Accordion.Item>
         <Accordion.Item className="accordion-items" eventKey="1">
           <Accordion.Header className='accordion-title'>Map</Accordion.Header>
           <Accordion.Body>
-            <Map />
+            <HandednessMap onStateClick={setStateCode} />
           </Accordion.Body>
         </Accordion.Item>
       </Accordion>

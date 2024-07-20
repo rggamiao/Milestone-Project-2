@@ -17,6 +17,7 @@
     "react-dom": "^18.3.1",
     "react-scripts": "5.0.1",
     "react-simple-maps": "^3.0.0",
+    "react-toastify": "^10.0.5",
     "react-tooltip": "^5.27.1",
     "topojson": "^3.0.2",
     "web-vitals": "^2.1.4"
