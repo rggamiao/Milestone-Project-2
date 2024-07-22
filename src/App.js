@@ -2,9 +2,7 @@ import React, { useState, useEffect } from 'react';
 import Chart from "chart.js/auto";
 import { CategoryScale } from "chart.js";
 import PieChart from "./components/PieChart";
-import HandednessMap from "./components/HandednessMap";
-import 'leaflet/dist/leaflet.css';
-import 'bootstrap/dist/css/bootstrap.min.css'; // Import Bootstrap CSS
+import 'bootstrap/dist/css/bootstrap.min.css';
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
 import Accordion from 'react-bootstrap/Accordion';
@@ -12,6 +10,9 @@ import './App.css';
 import { Toggle } from "./components/toggle";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { stateFacts } from './stateFacts';
+
+Chart.register(CategoryScale);
 
 const states = [
   { code: "AL", name: "Alabama" }, { code: "AK", name: "Alaska" }, { code: "AZ", name: "Arizona" }, { code: "AR", name: "Arkansas" }, { code: "CA", name: "California" },
@@ -25,8 +26,6 @@ const states = [
   { code: "SD", name: "South Dakota" }, { code: "TN", name: "Tennessee" }, { code: "TX", name: "Texas" }, { code: "UT", name: "Utah" }, { code: "VT", name: "Vermont" },
   { code: "VA", name: "Virginia" }, { code: "WA", name: "Washington" }, { code: "WV", name: "West Virginia" }, { code: "WI", name: "Wisconsin" }, { code: "WY", name: "Wyoming" }
 ];
-
-Chart.register(CategoryScale);
 
 function App() {
   const [chartData, setChartData] = useState({
@@ -45,8 +44,11 @@ function App() {
     ]
   });
 
-  const [stateCode, setStateCode] = useState(''); // Track selected state code
-  const [email, setEmail] = useState(''); // Track email input
+  const [stateCode, setStateCode] = useState('');
+  const [email, setEmail] = useState('');
+  const [stateFact, setStateFact] = useState('');
+  const [isDark, setIsDark] = useState(false);
+  const [currentCounts, setCurrentCounts] = useState({ right: 0, left: 0 });
 
   const fetchData = async () => {
     try {
@@ -54,6 +56,8 @@ function App() {
       const data = await response.json();
       const rightHanded = data.filter(item => item.choice === 'right').length;
       const leftHanded = data.filter(item => item.choice === 'left').length;
+
+      setCurrentCounts({ right: rightHanded, left: leftHanded }); // Set current counts
 
       setChartData({
         labels: ['Right-handed', 'Left-handed'],
@@ -72,6 +76,7 @@ function App() {
       });
     } catch (error) {
       console.error('Error fetching data:', error);
+      toast.error('Failed to fetch handedness data.');
     }
   };
 
@@ -80,14 +85,11 @@ function App() {
   }, []);
 
   const handleVote = async (choice) => {
-    console.log('Vote button clicked:', choice, stateCode);
     if (!stateCode) {
-      console.error('No state selected');
       toast.error('Please select a state.');
       return;
     }
     if (!email) {
-      console.error('Email is required');
       toast.error('Email is required.');
       return;
     }
@@ -101,14 +103,12 @@ function App() {
         body: JSON.stringify({ choice, state: stateCode, email })
       });
       if (response.ok) {
-        console.log('Vote recorded');
-        fetchData(); // Fetch the updated data and update the chart and map
+        fetchData();
+        setStateFact(stateFacts[stateCode]?.fact || 'No fact available for this state.');
         toast.success('Vote recorded successfully!');
       } else if (response.status === 409) {
-        console.error('Email already exists');
-        toast.error('This email has already voted.');
+        toast.error('This email has already voted.'); // Handle conflict error
       } else {
-        console.error('Failed to record vote');
         toast.error('Failed to record vote.');
       }
     } catch (error) {
@@ -117,8 +117,6 @@ function App() {
     }
   };
 
-  const [isDark, setIsDark] = useState(false);
-
   return (
     <div className="App" data-theme={isDark ? "dark" : "light"}>
       <Toggle 
@@ -126,27 +124,41 @@ function App() {
         handleChange={() => setIsDark(!isDark)}
         label={isDark ? "Light Mode" : "Dark Mode"}
       />
-      <h1 className="title">Are you a lefty or a righty ?</h1>
+      <h1 className="title">Are you a lefty or a righty?</h1>
       <Accordion className="accordion">
         <Accordion.Item className="accordion-item" eventKey="0">
           <Accordion.Header>Dominant Hand Chart</Accordion.Header>
           <Accordion.Body>
             <PieChart chartData={chartData} />
+            <p>Right-handed: {currentCounts.right}</p>
+            <p>Left-handed: {currentCounts.left}</p>
           </Accordion.Body>
         </Accordion.Item>
         <Accordion.Item className="accordion-items" eventKey="1">
-          <Accordion.Header className='accordion-title'>Map</Accordion.Header>
+          <Accordion.Header className='accordion-title'>State Fact</Accordion.Header>
           <Accordion.Body>
-            <HandednessMap onStateClick={setStateCode} />
+            {stateCode && (
+              <div>
+                <h2>{stateCode}</h2>
+                <p>{stateFact}</p>
+                <p>Left-handedness: {currentCounts.left} people</p>
+                <p>Right-handedness: {currentCounts.right} people</p>
+              </div>
+            )}
           </Accordion.Body>
         </Accordion.Item>
       </Accordion>
       <div className="selectorArea">
         <div>
-          <Form.Select size="lg" aria-label="Default select example" value={stateCode} onChange={(e) => setStateCode(e.target.value)}>
+          <Form.Select 
+            size="lg" 
+            aria-label="Select your state" 
+            value={stateCode} 
+            onChange={(e) => setStateCode(e.target.value)}
+          >
             <option value="">Select your state</option>
-            {states.map((state, index) => (
-              <option key={index} value={state.code}>{state.name}</option>
+            {states.map((state) => (
+              <option key={state.code} value={state.code}>{state.name}</option>
             ))}
           </Form.Select>
         </div>
