@@ -154,20 +154,15 @@ function App() {
         </Accordion.Item>
       </Accordion>
       <div className="selectorArea">
-        <div>
-          <Form.Select 
-            size="lg" 
-            aria-label="Select your state" 
-            value={stateCode} 
-            onChange={(e) => setStateCode(e.target.value)}
-          >
+        <div className="state-form">
+          <Form.Select size="lg" aria-label="Default select example" value={stateCode} onChange={(e) => setStateCode(e.target.value)}>
             <option value="">Select your state</option>
             {states.map((state) => (
               <option key={state.code} value={state.code}>{state.name}</option>
             ))}
           </Form.Select>
         </div>
-        <div>
+        <div className="email-form">
           <Form.Control
             type="email"
             placeholder="Enter email"
@@ -180,7 +175,18 @@ function App() {
           <Button onClick={() => handleVote('right')} size="lg">Right Handed?</Button>
         </div>
       </div>
-      <ToastContainer />
+      <ToastContainer
+        position="bottom-right"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="light"
+      />
     </div>
   );
 }

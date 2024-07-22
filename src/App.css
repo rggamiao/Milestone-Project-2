@@ -11,10 +11,13 @@
   transition: background-color 250ms ease-in-out;
 }
 
-.accordion-button:focus,
 .accordion-button:not(.collapsed) {
-  outline: none !important;
-  box-shadow: none !important;
+  background-color: white !important;
+  color: black;
+}
+
+button.accordion-button:focus{
+  box-shadow: inherit;
 }
 
 .title {
@@ -45,6 +48,7 @@
   border-radius: 10px;
   padding: 20px;
   width: 80%;
+  gap: 1em;
   background-color: var(--foreground-color);
   color: var(--secondary-text-color);
   display: flex;
@@ -55,71 +59,52 @@
 
 .selectorArea .form-select {
   width: 100%;
-  margin-bottom: 20px;
 }
 
 .buttons {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 1em;
   width: 100%;
 }
 
 /* Media Query for larger screens */
 @media (min-width: 768px) {
   .selectorArea {
+    display: flex;
     flex-direction: row;
     justify-content: space-evenly;
+    align-items: stretch;
     width: 50%;
   }
 
-  .selectorArea .form-select {
+  .state-form, .email-form, .buttons {
+    flex: 1;
+    margin: 0 10px;
+  }
+
+  .state-form .form-select, 
+  .email-form .form-control, 
+  .buttons Button {
+    height: 50px;
+    line-height: 1.2;
+    padding: 5px 10px;
+    font-size: 1rem;
+    font-weight: bold;
+  }
+
+  .email-form .form-control {
     width: 100%;
-    margin-bottom: 0;
-    margin-left: 20px;
-    padding-left: 10px;
   }
 
   .buttons {
-    width: 60%;
+    display: flex;
     flex-direction: row;
     justify-content: space-evenly;
   }
-  .state-fact-annotation {
-    position: absolute;
-    background-color: white;
-    border: 1px solid #ccc;
-    padding: 10px;
-    border-radius: 5px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    max-width: 200px;
-  }
-  .controls {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-  }
-  
-  .controls button {
-    background: #f9f9f9;
-    border: 1px solid #ccc;
-    border-radius: 3px;
-    color: #333;
-    cursor: pointer;
-    font-size: 18px;
-    margin-left: 5px;
-    padding: 5px 10px;
-  }
-  
-  .state-fact-annotation {
-    position: absolute;
-    bottom: 10px;
-    left: 10px;
-    background-color: rgba(78, 126, 78, 0.9);
-    border: 1px solid #ccc;
-    padding: 10px;
-    border-radius: 5px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    max-width: 300px;
+
+  .buttons Button {
+    flex: 1;
+    margin: 0 5px;
   }
 }
