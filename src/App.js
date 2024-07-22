@@ -140,6 +140,11 @@ function App() {
             {stateCode && (
               <div>
                 <h2>{stateCode}</h2>
+                <img 
+                  src={require(`./assets/State Flags/${stateCode.toLowerCase()}.png`)} 
+                  alt={`${stateCode} flag`} 
+                  style={{ width: '100px', height: 'auto', marginBottom: '10px' }} 
+                />
                 <p>{stateFact}</p>
                 <p>Left-handedness: {currentCounts.left} people</p>
                 <p>Right-handedness: {currentCounts.right} people</p>
