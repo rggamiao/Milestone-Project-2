@@ -48,18 +48,17 @@ function App() {
   const [email, setEmail] = useState('');
   const [isDark, setIsDark] = useState(false);
   const [overallCounts, setOverallCounts] = useState({ right: 0, left: 0 });
+  const [showFacts, setShowFacts] = useState(false);
 
   const fetchData = useCallback(async () => {
     try {
       const response = await fetch('https://mp2-backend-production.up.railway.app/api/hand-dominance');
       const data = await response.json();
       console.log("Fetched data:", data);
-
       // Calculate overall counts
       const overallRight = data.filter(item => item.choice === 'right').length;
       const overallLeft = data.filter(item => item.choice === 'left').length;
       setOverallCounts({ right: overallRight, left: overallLeft });
-
       setChartData({
         labels: ['Right-handed', 'Left-handed'],
         datasets: [
@@ -106,6 +105,7 @@ function App() {
       if (response.ok) {
         toast.success('Vote recorded successfully!');
         await fetchData(); // Fetch updated data after successful vote
+        setShowFacts(true);
       } else if (response.status === 409) {
         toast.error('This email has already voted.');
       } else {
@@ -124,6 +124,11 @@ function App() {
       console.error(`Error loading flag for ${stateCode}:`, error);
       return null;
     }
+  };
+
+  const getStateFacts = (stateCode) => {
+    const facts = stateFacts[stateCode];
+    return facts ? Object.values(facts) : ['No facts available for this state.'];
   };
 
   return (
@@ -146,40 +151,37 @@ function App() {
         <Accordion.Item className="accordion-items" eventKey="1">
           <Accordion.Header className='accordion-title'>State Facts</Accordion.Header>
           <Accordion.Body>
-            {stateCode && (
+            {!showFacts && <p>Enter your state and email below</p>}
+            {showFacts && stateCode && (
               <div>
-                <div className="text-center">
-                  <h2>{states.find(s => s.code === stateCode)?.name}</h2>
-                  {getStateFlag(stateCode) && (
-                    <img 
-                      src={getStateFlag(stateCode)}
-                      alt={`${stateCode} flag`} 
-                      style={{ width: '100px', height: 'auto', marginBottom: '10px' }} 
-                    />
-                  )}
-                </div>
-                <div className="text-left">
-                  <ul>
-                    {stateFacts[stateCode] && Object.values(stateFacts[stateCode]).map((fact, index) => (
-                      <li key={index}>{fact}</li>
-                    ))}
-                  </ul>
-                </div>
+                <h2>{stateCode}</h2>
+                <img src={getStateFlag(stateCode)} alt={`${stateCode} flag`} style={{ width: '100px', height: 'auto', marginBottom: '10px' }} />
+                <ol style={{ textAlign: 'left' }}>
+                  {getStateFacts(stateCode).map((fact, index) => (
+                    <li key={index}>{fact}</li>
+                  ))}
+                </ol>
+                
               </div>
             )}
           </Accordion.Body>
         </Accordion.Item>
       </Accordion>
       <div className="selectorArea">
-        <div className="state-form">
-          <Form.Select size="lg" aria-label="Default select example" value={stateCode} onChange={(e) => setStateCode(e.target.value)}>
+        <div>
+          <Form.Select 
+            size="lg" 
+            aria-label="Select your state" 
+            value={stateCode} 
+            onChange={(e) => setStateCode(e.target.value)}
+          >
             <option value="">Select your state</option>
             {states.map((state) => (
               <option key={state.code} value={state.code}>{state.name}</option>
             ))}
           </Form.Select>
         </div>
-        <div className="email-form">
+        <div>
           <Form.Control
             type="email"
             placeholder="Enter email"
@@ -192,18 +194,7 @@ function App() {
           <Button onClick={() => handleVote('right')} size="lg">Right Handed?</Button>
         </div>
       </div>
-      <ToastContainer
-        position="bottom-right"
-        autoClose={5000}
-        hideProgressBar={false}
-        newestOnTop={false}
-        closeOnClick
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-        theme="light"
-      />
+      <ToastContainer />
     </div>
   );
 }
