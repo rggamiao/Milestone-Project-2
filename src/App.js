@@ -146,8 +146,8 @@ function App() {
                   style={{ width: '100px', height: 'auto', marginBottom: '10px' }} 
                 />
                 <p>{stateFact}</p>
-                <p>Left-handedness: {currentCounts.left} people</p>
-                <p>Right-handedness: {currentCounts.right} people</p>
+                <p>Left-handed: {currentCounts.left} people</p>
+                <p>Right-handed: {currentCounts.right} people</p>
               </div>
             )}
           </Accordion.Body>
