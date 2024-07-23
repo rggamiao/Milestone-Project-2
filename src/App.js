@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import Chart from "chart.js/auto";
 import { CategoryScale } from "chart.js";
 import PieChart from "./components/PieChart";
@@ -46,25 +46,26 @@ function App() {
 
   const [stateCode, setStateCode] = useState('');
   const [email, setEmail] = useState('');
-  const [stateFact, setStateFact] = useState('');
   const [isDark, setIsDark] = useState(false);
-  const [currentCounts, setCurrentCounts] = useState({ right: 0, left: 0 });
+  const [overallCounts, setOverallCounts] = useState({ right: 0, left: 0 });
 
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     try {
       const response = await fetch('https://mp2-backend-production.up.railway.app/api/hand-dominance');
       const data = await response.json();
-      const rightHanded = data.filter(item => item.choice === 'right').length;
-      const leftHanded = data.filter(item => item.choice === 'left').length;
+      console.log("Fetched data:", data);
 
-      setCurrentCounts({ right: rightHanded, left: leftHanded }); // Set current counts
+      // Calculate overall counts
+      const overallRight = data.filter(item => item.choice === 'right').length;
+      const overallLeft = data.filter(item => item.choice === 'left').length;
+      setOverallCounts({ right: overallRight, left: overallLeft });
 
       setChartData({
         labels: ['Right-handed', 'Left-handed'],
         datasets: [
           {
             label: "Handedness Distribution",
-            data: [rightHanded, leftHanded],
+            data: [overallRight, overallLeft],
             backgroundColor: [
               "rgba(75,192,192,1)",
               "#ecf0f1"
@@ -78,11 +79,11 @@ function App() {
       console.error('Error fetching data:', error);
       toast.error('Failed to fetch handedness data.');
     }
-  };
+  }, []);
 
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [fetchData]);
 
   const handleVote = async (choice) => {
     if (!stateCode) {
@@ -103,17 +104,25 @@ function App() {
         body: JSON.stringify({ choice, state: stateCode, email })
       });
       if (response.ok) {
-        fetchData();
-        setStateFact(stateFacts[stateCode]?.fact || 'No fact available for this state.');
         toast.success('Vote recorded successfully!');
+        await fetchData(); // Fetch updated data after successful vote
       } else if (response.status === 409) {
-        toast.error('This email has already voted.'); // Handle conflict error
+        toast.error('This email has already voted.');
       } else {
         toast.error('Failed to record vote.');
       }
     } catch (error) {
       console.error('Error:', error);
       toast.error('An error occurred. Please try again.');
+    }
+  };
+
+  const getStateFlag = (stateCode) => {
+    try {
+      return require(`./assets/State Flags/${stateCode.toLowerCase()}.png`);
+    } catch (error) {
+      console.error(`Error loading flag for ${stateCode}:`, error);
+      return null;
     }
   };
 
@@ -130,24 +139,32 @@ function App() {
           <Accordion.Header>Dominant Hand Chart</Accordion.Header>
           <Accordion.Body>
             <PieChart chartData={chartData} />
-            <p>Right-handed: {currentCounts.right}</p>
-            <p>Left-handed: {currentCounts.left}</p>
+            <p>Right-handed: {overallCounts.right}</p>
+            <p>Left-handed: {overallCounts.left}</p>
           </Accordion.Body>
         </Accordion.Item>
         <Accordion.Item className="accordion-items" eventKey="1">
-          <Accordion.Header className='accordion-title'>State Fact</Accordion.Header>
+          <Accordion.Header className='accordion-title'>State Facts</Accordion.Header>
           <Accordion.Body>
             {stateCode && (
               <div>
-                <h2>{stateCode}</h2>
-                <img 
-                  src={require(`./assets/State Flags/${stateCode.toLowerCase()}.png`)} 
-                  alt={`${stateCode} flag`} 
-                  style={{ width: '100px', height: 'auto', marginBottom: '10px' }} 
-                />
-                <p>{stateFact}</p>
-                <p>Left-handed: {currentCounts.left} people</p>
-                <p>Right-handed: {currentCounts.right} people</p>
+                <div className="text-center">
+                  <h2>{states.find(s => s.code === stateCode)?.name}</h2>
+                  {getStateFlag(stateCode) && (
+                    <img 
+                      src={getStateFlag(stateCode)}
+                      alt={`${stateCode} flag`} 
+                      style={{ width: '100px', height: 'auto', marginBottom: '10px' }} 
+                    />
+                  )}
+                </div>
+                <div className="text-left">
+                  <ul>
+                    {stateFacts[stateCode] && Object.values(stateFacts[stateCode]).map((fact, index) => (
+                      <li key={index}>{fact}</li>
+                    ))}
+                  </ul>
+                </div>
               </div>
             )}
           </Accordion.Body>
