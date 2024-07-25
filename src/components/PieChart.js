@@ -59,7 +59,7 @@ function PieChart() {
   const legendColor = getCSSVariable('--secondary-text-color');
 
   return (
-    <div className="chart-container" style={{ width: '50%', margin: 'auto', maxWidth: '400px', minWidth: '250px' }}>
+    <div className="chart-container" style={{ width: '50%', margin: 'auto', maxWidth: '400px', minWidth: '200px' }}>
       <h2 className="chart-title" style={{ textAlign: "center", color: titleColor }}>Hand Dominance</h2>
       <Pie
         data={chartData}
