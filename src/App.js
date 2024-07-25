@@ -183,6 +183,7 @@ function App() {
         </div>
         <div>
           <Form.Control
+            className="email-form"
             type="email"
             placeholder="Enter email"
             value={email}
